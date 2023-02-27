@@ -1,0 +1,18 @@
+# Enviroments
+.env
+
+#Editors
+/.idea
+/.vscode
+
+#Docker Volume
+/volume
+
+#Bin and executable files
+gin-bin
+
+# Uploads
+/public/uploads
+
+
+.DS_Store

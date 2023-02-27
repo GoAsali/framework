@@ -1,0 +1,29 @@
+version: '3'
+services:
+  db:
+    image: mysql/mysql-server:latest
+    container_name: asalpolaki-db
+    ports:
+      - "3305:3306"
+    environment:
+      - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
+      - "DB_HOST=${DB_HOST}"
+      - "DB_PORT=${DB_PORT}"
+      - "DB_USER=${DB_USER}"
+      - "DB_PASSWORD=${DB_PASSWORD}"
+      - "DB_NAME=${DB_NAME}"
+    volumes:
+      - ./volume/mysql_volume:/var/lib/mysql
+
+  web:
+    build: .
+    image: asalpolaki_base
+    container_name: asalpolaki-base
+    ports:
+      - "8080:3000"
+    volumes:
+      - ".:/app"
+    depends_on:
+      - db
+    links:
+      - "db:database"
