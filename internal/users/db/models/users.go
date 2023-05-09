@@ -6,10 +6,9 @@ import (
 )
 
 type User struct {
-	Id           uint   `json:"id" gorm:"primarykey"`
-	Username     string `gorm:"unique" json:"username"`
-	Password     string
-	passwordHash bool
+	Id       uint   `json:"id" gorm:"primarykey"`
+	Username string `gorm:"unique" json:"username"`
+	Password string
 }
 
 type UserRole struct {
@@ -21,21 +20,12 @@ type UserRole struct {
 }
 
 func (user *User) HashPassword() error {
-	if user.passwordHash {
-		return nil
-	}
-	user.passwordHash = true
 	bytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	user.Password = string(bytes)
 	return err
 }
 
-// Hooks
-//
-//func (user *User) BeforeCreate(*gorm.DB) error {
-//	return user.HashPassword()
-//}
-//
-//func (user *User) BeforeSave(*gorm.DB) error {
-//	return user.HashPassword()
-//}
+func (user *User) CheckPasswordHash(password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	return err == nil
+}

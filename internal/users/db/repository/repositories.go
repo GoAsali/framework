@@ -1,11 +1,16 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"github.com/abolfazlalz/goasali/internal/users/db/models"
 	"github.com/abolfazlalz/goasali/pkg/repositories"
 
 	"gorm.io/gorm"
+)
+
+var (
+	UsernameNotFound = errors.New("username not found")
 )
 
 type UserRepository struct {
@@ -19,7 +24,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	}
 }
 
-func (ur UserRepository) Create(user *models.User) (tx *gorm.DB) {
+func (ur *UserRepository) Create(user *models.User) (tx *gorm.DB) {
 	{
 		found := ur.CheckUsernameExists(user.Username)
 
@@ -29,16 +34,21 @@ func (ur UserRepository) Create(user *models.User) (tx *gorm.DB) {
 			}
 		}
 	}
+	if err := user.HashPassword(); err != nil {
+		return &gorm.DB{
+			Error: fmt.Errorf("error during hash password error: %v", err),
+		}
+	}
 	return ur.Db.Create(user)
 }
 
-func (ur UserRepository) Get(id uint) *models.User {
+func (ur *UserRepository) Get(id uint) *models.User {
 	user := models.User{Id: id}
 	ur.Db.Where(user).First(&user)
 	return &user
 }
 
-func (ur UserRepository) CreateMap(model map[string]string) *gorm.DB {
+func (ur *UserRepository) CreateMap(model map[string]string) *gorm.DB {
 	user := models.User{
 		Username: model["Username"],
 		Password: model["Password"],
@@ -46,12 +56,12 @@ func (ur UserRepository) CreateMap(model map[string]string) *gorm.DB {
 	return ur.Create(&user)
 }
 
-func (ur UserRepository) FindByUsername(username string, user *models.User) error {
+func (ur *UserRepository) FindByUsername(username string, user *models.User) error {
 	result := ur.Db.Where(&models.User{Username: username}).First(&user)
 	return result.Error
 }
 
-func (ur UserRepository) CheckUsernameExists(username string) bool {
+func (ur *UserRepository) CheckUsernameExists(username string) bool {
 	var user *models.User
 	if err := ur.FindByUsername(username, user); err != nil {
 		return false
@@ -59,4 +69,4 @@ func (ur UserRepository) CheckUsernameExists(username string) bool {
 	return user != nil
 }
 
-func (ur UserRepository) AddRole() {}
+func (ur *UserRepository) AddRole() {}
