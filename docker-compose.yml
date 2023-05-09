@@ -1,29 +1,30 @@
-version: '3'
+version: "3.8"
 services:
+  cache:
+    image: redis:latest
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache:/data
   db:
-    image: mysql/mysql-server:latest
-    container_name: asalpolaki-db
+    container_name: dockerdev-db
+    image: mysql/mysql-server:8.0
     ports:
-      - "3305:3306"
+      - "3306:3306"
     environment:
-      - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
-      - "DB_HOST=${DB_HOST}"
-      - "DB_PORT=${DB_PORT}"
-      - "DB_USER=${DB_USER}"
-      - "DB_PASSWORD=${DB_PASSWORD}"
-      - "DB_NAME=${DB_NAME}"
+      MYSQL_DATABASE: 'automation'
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'automation'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: 'password'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: 'password'
+    expose:
+      - '3306'
     volumes:
-      - ./volume/mysql_volume:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  web:
-    build: .
-    image: asalpolaki_base
-    container_name: asalpolaki-base
-    ports:
-      - "8080:3000"
-    volumes:
-      - ".:/app"
-    depends_on:
-      - db
-    links:
-      - "db:database"
+volumes:
+  cache:
+    driver: local
