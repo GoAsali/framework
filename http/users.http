@@ -1,0 +1,7 @@
+POST http://localhost:9000/auth/register
+Content-Type: application/json
+Accept-Language: en
+
+{
+  "username": "abolfazlalz"
+}

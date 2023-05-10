@@ -21,6 +21,14 @@ type LoginUser struct {
 	Password string `binding:"required"`
 }
 
+type RegisterUser struct {
+	Username        string `binding:"required,unique=users"`
+	Password        string `binding:"required"`
+	ConfirmPassword string `binding:"required" json:"confirm_password"`
+	FirstName       string `binding:"required" json:"first_name"`
+	LastName        string `binding:"required" json:"last_name"`
+}
+
 func NewAuthController(db *gorm.DB, bundle *i18n.Bundle) *AuthController {
 	ctrl := controllers.NewController(bundle)
 	return &AuthController{
@@ -51,6 +59,11 @@ func (ac *AuthController) Login(c *gin.Context) {
 }
 
 func (ac *AuthController) CreateAccount(c *gin.Context) {
-	//ToDO: Handle it
+	body := RegisterUser{}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		ac.HttpError.HandleGinError(err, c)
+		return
+	}
+
 	c.Abort()
 }

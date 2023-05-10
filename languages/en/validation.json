@@ -1,0 +1,12 @@
+{
+  "error": "The entered values are invalid.",
+  "required": "{{.Field}} field is required.",
+  "unique": "The {{.Field}} has already been taken.",
+  "fields": {
+    "Username": "username",
+    "ConfirmPassword": "Confirm password",
+    "Password": "Password",
+    "LastName": "Last name",
+    "FirstName": "First name"
+  }
+}

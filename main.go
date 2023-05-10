@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	log.Println("hello world")
 	bundle := languages.LoadLanguages()
 
 	if err := config.LoadEnvironments(); err != nil {

@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"github.com/abolfazlalz/goasali/pkg/config"
+	"github.com/abolfazlalz/goasali/pkg/http/validations"
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"gorm.io/gorm"
@@ -44,7 +45,17 @@ func SetupRouter(db *gorm.DB, bundle *i18n.Bundle) *Route {
 		gin.SetMode(appConfig.Mode)
 	}
 	router := gin.Default()
-	return &Route{router, db, bundle, appConfig}
+
+	r := &Route{router, db, bundle, appConfig}
+	r.loadValidations()
+
+	return r
+}
+
+func (r *Route) loadValidations() {
+	if err := validations.AddDatabase(r.DB); err != nil {
+		log.Fatalf("error during load database validation: %v", err)
+	}
 }
 
 func (r *Route) AddRoutes(routes ...Interface) {

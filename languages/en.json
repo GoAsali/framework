@@ -1,4 +1,0 @@
-{
-  "FormValidationError": "The entered values are invalid.",
-  "FormValidationErrorRequired": "{{.Field}} was required."
-}

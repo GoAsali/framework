@@ -1,15 +1,23 @@
-FROM golang:latest as run
+# Compile stage
+FROM golang:1.20 AS build-env
 
-RUN mkdir /app
+# Build Delve
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
-RUN go install github.com/codegangsta/gin@latest
+ADD . /dockerdev
+WORKDIR /dockerdev
 
-WORKDIR /app
+# Compile the application with the optimizations turned off
+# This is important for the debugger to correctly work with the binary
+RUN go build -gcflags "all=-N -l" -o /server
 
-COPY ./go.mod .
-COPY ./go.sum .
+# Final stage
+FROM debian:buster
 
-RUN go mod tidy
+EXPOSE 8000 40000
 
+WORKDIR /
+COPY --from=build-env /go/bin/dlv /
+COPY --from=build-env /server /
 
-CMD ["gin", "-i", "run","main.go"]
+CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/server"]
