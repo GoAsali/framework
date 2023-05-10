@@ -50,17 +50,25 @@ func (he *HttpError) ErrorMessage(message string) OptionFunc {
 	}
 }
 
-func (he *HttpError) I18nErrorMessage(c *gin.Context, id string) OptionFunc {
+func (he *HttpError) I18nErrorMessageConfig(c *gin.Context, id string) OptionFunc {
 	return func(opt *httpErrorConfig) {
-		opt.message = he.mustLocalize(c, &i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID: id,
-			}})
+		opt.message = he.I18nErrorMessage(c, id)
 	}
 }
 
-func x(p *int) {
+func (he *HttpError) I18nErrorMessage(c *gin.Context, id string) string {
+	return he.mustLocalize(c, &i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID: id,
+		}})
+}
 
+func (he *HttpError) I18nErrorMessageOrDefault(c *gin.Context, id string, defValue string) string {
+	value := he.I18nErrorMessage(c, id)
+	if value == "" {
+		return defValue
+	}
+	return value
 }
 
 func (he *HttpError) HandleHttp(c *gin.Context, configs ...OptionFunc) {

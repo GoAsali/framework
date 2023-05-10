@@ -6,13 +6,21 @@ import (
 	"github.com/abolfazlalz/goasali/pkg/config"
 	"github.com/abolfazlalz/goasali/pkg/database"
 	routes "github.com/abolfazlalz/goasali/pkg/http/routers"
-	"github.com/abolfazlalz/goasali/pkg/languages"
+	"github.com/abolfazlalz/goasali/pkg/multilingual"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
 	"log"
 )
 
 func main() {
 	log.Println("hello world")
-	bundle := languages.LoadLanguages()
+	m := &multilingual.Multilingual{
+		Bundle: i18n.NewBundle(language.English),
+		Path:   "languages",
+	}
+	if err := m.Load(); err != nil {
+		log.Fatalf("Error in loading languages files: %v", err)
+	}
 
 	if err := config.LoadEnvironments(); err != nil {
 		log.Fatalf("Error in loading `.env` file: %v", err)
@@ -29,7 +37,7 @@ func main() {
 		log.Fatalf("Can't loading database: %v", err)
 	}
 
-	router := routes.SetupRouter(databaseConfig.DB, bundle)
+	router := routes.SetupRouter(databaseConfig.DB, m.Bundle)
 	router.AddRoutes(routers.NewUserRoute())
 
 	if err := router.Listen(); err != nil {

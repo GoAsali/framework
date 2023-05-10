@@ -22,20 +22,17 @@ func (he *HttpError) i18nMessage(c *gin.Context, id string, field string) string
 func (he *HttpError) handleValidationError(err validator.ValidationErrors, c *gin.Context) {
 	message := he.mustLocalize(c, &i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
-			ID: "FormValidationError",
+			ID: "validation.error",
 		}})
 	code := http.StatusBadRequest
 
 	formErrors := map[string]string{}
 	for _, field := range err {
-		fmt.Println(field)
-		id := "FormValidationErrorRequired"
-		if field.Tag() == "required" {
-			id = "FormValidationErrorRequired"
-		} else if field.Tag() == "unique" {
-			id = "FormValidationErrorUnique"
-		}
-		formErrors[field.Field()] = he.i18nMessage(c, id, field.Field())
+		id := "validation." + field.Tag()
+		fieldKey := field.Field()
+		keyId := fmt.Sprintf("validation.fields.%s", fieldKey)
+		fieldName := he.I18nErrorMessageOrDefault(c, keyId, fieldKey)
+		formErrors[fieldKey] = he.i18nMessage(c, id, fieldName)
 	}
 
 	c.JSON(code, gin.H{

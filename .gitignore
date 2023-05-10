@@ -14,5 +14,6 @@ gin-bin
 # Uploads
 /public/uploads
 
+*.sqlite
 
 .DS_Store
