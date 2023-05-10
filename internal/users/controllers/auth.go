@@ -1,5 +1,7 @@
 package controllers
 
+//TODO add jwt token for authorization
+
 import (
 	"github.com/abolfazlalz/goasali/internal/users/db/models"
 	"github.com/abolfazlalz/goasali/internal/users/errors"
@@ -8,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"gorm.io/gorm"
+	"log"
 )
 
 type AuthController struct {
@@ -60,10 +63,35 @@ func (ac *AuthController) Login(c *gin.Context) {
 
 func (ac *AuthController) CreateAccount(c *gin.Context) {
 	body := RegisterUser{}
+
 	if err := c.ShouldBindJSON(&body); err != nil {
 		ac.HttpError.HandleGinError(err, c)
 		return
 	}
 
-	c.Abort()
+	if body.Password != body.ConfirmPassword {
+		ac.HttpError.HandleHttp(c, ac.I18nErrorMessageConfig(c, "validation.password_same"))
+		return
+	}
+
+	user := models.User{
+		FirstName: body.FirstName,
+		LastName:  body.LastName,
+		Password:  body.Password,
+		Username:  body.Username,
+	}
+
+	if err := ac.authService.CreateAccount(&user); err != nil {
+		log.Printf("Error during create new user: %v", err)
+		c.AbortWithStatusJSON(500, gin.H{
+			"message": "Error during create new user, please try again.",
+			"status":  false,
+		})
+		return
+	}
+
+	c.JSON(201, gin.H{
+		"user":   user,
+		"status": true,
+	})
 }

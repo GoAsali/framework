@@ -3,4 +3,9 @@ Content-Type: application/json
 Accept-Language: fa
 
 {
+  "confirm_password": "helloworld",
+  "password": "helloworld",
+  "last_name": "Alizadeh",
+  "first_name": "Abolfazl",
+  "username": "abolfazlalz2"
 }

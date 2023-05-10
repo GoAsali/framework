@@ -37,4 +37,13 @@ func (as *AuthService) Login(user *models.User, username string, password string
 	return nil
 }
 
-func (as *AuthService) CreateAccount() {}
+func (as *AuthService) CreateAccount(user *models.User) error {
+	tx := as.db.Create(user)
+
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
+
+}
