@@ -4,13 +4,14 @@ import (
 	"fmt"
 	filesUtils "github.com/abolfazlalz/goasali/pkg/utils/files"
 	"github.com/abolfazlalz/goasali/pkg/utils/slices"
+	"golang.org/x/text/language"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
 type fileLanguage struct {
-	language string
+	language language.Tag
 	name     string
 	path     string
 }
@@ -33,7 +34,7 @@ func (fl *DirectoryLanguage) loadFiles() ([]os.DirEntry, error) {
 	fl.files = slices.Map(files, func(t os.DirEntry) fileLanguage {
 		name := t.Name()
 		return fileLanguage{
-			language: fl.language,
+			language: language.MustParse(fl.language),
 			path:     fmt.Sprintf("%s/%s", fl.path, name),
 			name:     strings.Split(name, ".")[0],
 		}

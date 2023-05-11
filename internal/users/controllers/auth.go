@@ -49,16 +49,21 @@ func (ac *AuthController) Login(c *gin.Context) {
 	}
 
 	user := &models.User{}
-	if err := ac.authService.Login(user, body.Username, body.Password); err != nil {
+	token, err := ac.authService.Login(user, body.Username, body.Password)
+	if err != nil {
 		if err == services.UserUnauthorizedError {
-			ac.HttpError.HandleHttp(c, ac.HttpCode(400), ac.ErrorMessage("Unauthorized"))
-
+			ac.HttpError.HandleHttp(c, ac.HttpCode(400), ac.I18nErrorMessageConfig(c, "authorization.unauthorized"))
+			return
 		}
-		ac.HttpError.HandleHttp(c, ac.HttpCode(500), ac.ErrorMessage(err.Error()))
+		ac.HttpError.HandleHttp(c, ac.HttpCode(500), ac.I18nErrorMessageConfig(c, "errors.internal_server"))
 		return
 	}
 
-	c.JSON(200, body)
+	c.JSON(200, gin.H{
+		"user":   user,
+		"token":  token,
+		"status": true,
+	})
 }
 
 func (ac *AuthController) CreateAccount(c *gin.Context) {
@@ -81,17 +86,17 @@ func (ac *AuthController) CreateAccount(c *gin.Context) {
 		Username:  body.Username,
 	}
 
-	if err := ac.authService.CreateAccount(&user); err != nil {
+	token, err := ac.authService.CreateAccount(&user)
+
+	if err != nil {
 		log.Printf("Error during create new user: %v", err)
-		c.AbortWithStatusJSON(500, gin.H{
-			"message": "Error during create new user, please try again.",
-			"status":  false,
-		})
+		ac.HttpError.HandleHttp(c, ac.HttpCode(500), ac.I18nErrorMessageConfig(c, "errors.internal_server"))
 		return
 	}
 
 	c.JSON(201, gin.H{
 		"user":   user,
+		"token":  token,
 		"status": true,
 	})
 }

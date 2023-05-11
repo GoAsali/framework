@@ -1,11 +1,22 @@
+### Create account request
 POST http://localhost:9000/auth/register
 Content-Type: application/json
-Accept-Language: fa
+Accept-Language: en
 
 {
   "confirm_password": "helloworld",
   "password": "helloworld",
   "last_name": "Alizadeh",
   "first_name": "Abolfazl",
-  "username": "abolfazlalz2"
+  "username": "abolfazlalz"
+}
+
+### Login request
+POST http://localhost:9000/auth/login
+Content-Type: application/json
+Accept-Language: fa
+
+{
+  "username": "abolfazlalz",
+  "password": "helloworld"
 }

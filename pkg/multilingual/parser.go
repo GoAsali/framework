@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
 	"io/ioutil"
 	"os"
 )
@@ -62,13 +63,17 @@ func parseFile(file fileLanguage) ([]*i18n.Message, error) {
 	return messages, nil
 }
 
-func parseFiles(files []fileLanguage) ([]*i18n.Message, error) {
-	messages := make([]*i18n.Message, 0)
+func parseFiles(files []fileLanguage) (map[language.Tag][]*i18n.Message, error) {
+	messages := make(map[language.Tag][]*i18n.Message)
 	for _, file := range files {
 		if result, err := parseFile(file); err != nil {
 			return nil, err
 		} else {
-			messages = append(messages, result...)
+			//Check before language added or not
+			if _, ok := messages[file.language]; !ok {
+				messages[file.language] = make([]*i18n.Message, 0)
+			}
+			messages[file.language] = append(messages[file.language], result...)
 		}
 	}
 	return messages, nil

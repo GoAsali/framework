@@ -6,11 +6,11 @@ import (
 )
 
 type User struct {
-	Id        uint `json:"id" gorm:"primarykey"`
-	Username  string
-	Password  string `binding:"required" json:"_"`
-	FirstName string `binding:"required" json:"first_name"`
-	LastName  string `binding:"required" json:"last_name"`
+	Id        uint   `json:"id" gorm:"primarykey"`
+	Username  string `json:"username" gorm:"unique"`
+	Password  string `json:"_"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 type UserRole struct {

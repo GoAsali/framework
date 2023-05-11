@@ -26,19 +26,21 @@ func (m *Multilingual) Load() error {
 	dlMaker := directoryToDirLanguage(m.Path)
 	files := make([]fileLanguage, 0)
 
-	var messages []*i18n.Message
+	var messagesMap map[language.Tag][]*i18n.Message
 	var err error
 
 	for _, dir := range filesUtils.Directories(m.Path) {
 		dl := dlMaker(dir)
 		files = append(files, dl.files...)
 	}
-	if messages, err = parseFiles(files); err != nil {
+	if messagesMap, err = parseFiles(files); err != nil {
 		return err
 	}
 
-	if err := m.AddMessages(language.English, messages...); err != nil {
-		return err
+	for lang, messages := range messagesMap {
+		if err := m.AddMessages(lang, messages...); err != nil {
+			return err
+		}
 	}
 
 	return nil

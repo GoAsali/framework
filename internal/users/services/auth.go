@@ -8,11 +8,18 @@ import (
 	"gorm.io/gorm"
 )
 
+type AuthServiceI interface {
+	Login(user *models.User, username string, password string) (string, error)
+	CreateAccount(user *models.User) (string, error)
+	DeleteUser(user *models.User) error
+}
+
 var (
 	UserUnauthorizedError = errors.New("username or password was incorrect")
 )
 
 type AuthService struct {
+	AuthServiceI
 	db    *gorm.DB
 	repo  *repository.UserRepository
 	token *tokens.Token
@@ -20,30 +27,50 @@ type AuthService struct {
 
 func NewAuthService(db *gorm.DB) *AuthService {
 	return &AuthService{
-		db,
-		repository.NewUserRepository(db),
-		tokens.New(),
+		db:    db,
+		repo:  repository.NewUserRepository(db),
+		token: tokens.New(),
 	}
 }
 
-func (as *AuthService) Login(user *models.User, username string, password string) error {
+func (as *AuthService) Login(user *models.User, username string, password string) (string, error) {
 	if err := as.repo.FindByUsername(username, user); err != nil {
-		return err
+		return "", err
 	}
-	if user != nil || user.CheckPasswordHash(password) {
-		return UserUnauthorizedError
+	if user != nil || !user.CheckPasswordHash(password) {
+		return "", UserUnauthorizedError
 	}
 
-	return nil
+	token, err := as.token.GenerateJwtToken(user)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }
 
-func (as *AuthService) CreateAccount(user *models.User) error {
+func (as *AuthService) CreateAccount(user *models.User) (string, error) {
 	tx := as.db.Create(user)
 
 	if tx.Error != nil {
-		return tx.Error
+		return "", tx.Error
 	}
 
-	return nil
+	token, err := as.token.GenerateJwtToken(user)
 
+	if err != nil {
+		if user.Id != 0 {
+			if err := as.DeleteUser(user); err != nil {
+				return "", err
+			}
+		}
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (as *AuthService) DeleteUser(user *models.User) error {
+	tx := as.db.Delete(user)
+	as.db.Delete(&user, user.Id)
+	return tx.Error
 }

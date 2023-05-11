@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/abolfazlalz/goasali/internal/users/db/models"
 	"github.com/golang-jwt/jwt/v5"
+	"log"
 	"os"
 	"time"
 )
@@ -13,7 +14,7 @@ var (
 )
 
 type Token struct {
-	jwtKey string
+	jwtKey []byte
 }
 
 type Claims struct {
@@ -22,7 +23,7 @@ type Claims struct {
 }
 
 func New() *Token {
-	key := os.Getenv("APP_KEY")
+	key := []byte(os.Getenv("APP_KEY"))
 	return &Token{key}
 }
 
@@ -43,6 +44,10 @@ func (j *Token) GenerateJwtToken(user *models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	// Create the Token string
 	tokenString, err := token.SignedString(j.jwtKey)
+
+	if err != nil {
+		log.Printf("GenerateJwtToken: %v", err)
+	}
 
 	return tokenString, err
 }
