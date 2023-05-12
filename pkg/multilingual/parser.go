@@ -6,6 +6,7 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -13,7 +14,7 @@ func convertRaw(name string, raw interface{}) ([]*i18n.Message, error) {
 	messages := make([]*i18n.Message, 0)
 	switch data := raw.(type) {
 	case map[string]string:
-		fmt.Println(data)
+		log.Println(data)
 		break
 	case map[string]interface{}:
 		for k, v := range data {

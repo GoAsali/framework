@@ -46,11 +46,8 @@ func (he *HttpError) HandleGinError(err error, c *gin.Context) {
 	message := err.Error()
 	code := http.StatusInternalServerError
 
-	fmt.Println(err)
-
 	if verr, ok := err.(validator.ValidationErrors); ok {
 		he.handleValidationError(verr, c)
-		fmt.Printf("%v\n", verr[0].Tag())
 		return
 	}
 

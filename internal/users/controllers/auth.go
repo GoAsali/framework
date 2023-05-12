@@ -13,30 +13,23 @@ import (
 	"log"
 )
 
+type IAuthController interface {
+	Login(c *gin.Context)
+	CreateAccount(c *gin.Context)
+}
+
 type AuthController struct {
+	IAuthController
 	*controllers.Controllers
 	HttpError   *errors.UserHttpError
-	authService *services.AuthService
+	authService services.AuthServiceI
 }
 
-type LoginUser struct {
-	Username string `binding:"required"`
-	Password string `binding:"required"`
-}
-
-type RegisterUser struct {
-	Username        string `binding:"required,unique=users"`
-	Password        string `binding:"required"`
-	ConfirmPassword string `binding:"required" json:"confirm_password"`
-	FirstName       string `binding:"required" json:"first_name"`
-	LastName        string `binding:"required" json:"last_name"`
-}
-
-func NewAuthController(db *gorm.DB, bundle *i18n.Bundle) *AuthController {
+func NewAuthController(db *gorm.DB, bundle *i18n.Bundle) IAuthController {
 	ctrl := controllers.NewController(bundle)
 	return &AuthController{
 		Controllers: ctrl,
-		authService: services.NewAuthService(db),
+		authService: services.NewAuthServiceLogs(services.NewAuthService(db)),
 		HttpError:   errors.NewUserError(ctrl.HttpError),
 	}
 }
