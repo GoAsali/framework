@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"github.com/abolfazlalz/goasali/internal/users/db/migrate"
 	"github.com/abolfazlalz/goasali/internal/users/routers"
+	"github.com/abolfazlalz/goasali/pkg/cache"
 	"github.com/abolfazlalz/goasali/pkg/config"
 	"github.com/abolfazlalz/goasali/pkg/database"
 	routes "github.com/abolfazlalz/goasali/pkg/http/routers"
@@ -13,7 +15,8 @@ import (
 )
 
 func main() {
-	log.Println("hello world")
+	ctx := context.Background()
+
 	m := &multilingual.Multilingual{
 		Bundle: i18n.NewBundle(language.English),
 		Path:   "languages",
@@ -27,6 +30,11 @@ func main() {
 	}
 
 	databaseConfig, err := database.LoadDatabase()
+	cache, err := cache.New(ctx)
+	if err != nil {
+		log.Fatalf("Error during loading cache: %v", err)
+		return
+	}
 
 	// Migrate modules models
 	if err := databaseConfig.Migrate(migrate.UserMigration{}); err != nil {
@@ -37,7 +45,7 @@ func main() {
 		log.Fatalf("Can't loading database: %v", err)
 	}
 
-	router := routes.SetupRouter(databaseConfig.DB, m.Bundle)
+	router := routes.SetupRouter(databaseConfig.DB, m.Bundle, cache)
 	router.AddRoutes(routers.NewUserRoute())
 
 	if err := router.Listen(); err != nil {

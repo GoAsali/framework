@@ -14,7 +14,7 @@ func NewUserRoute() *UserRouter {
 }
 
 func (UserRouter) Listen(route *routes.RouteModuleParams) {
-	ctrl := controllers.NewAuthController(route.DB, route.Bundle)
+	ctrl := controllers.NewAuthController(route.DB, route.Bundle, route.Cache)
 	ctrl = controllers.NewAuthLogs(ctrl)
 	grp := route.Router.Group("/auth")
 	grp.POST("/register", ctrl.CreateAccount)

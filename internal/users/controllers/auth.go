@@ -6,6 +6,7 @@ import (
 	"github.com/abolfazlalz/goasali/internal/users/db/models"
 	"github.com/abolfazlalz/goasali/internal/users/errors"
 	"github.com/abolfazlalz/goasali/internal/users/services"
+	"github.com/abolfazlalz/goasali/pkg/cache"
 	"github.com/abolfazlalz/goasali/pkg/http/controllers"
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -25,8 +26,8 @@ type AuthController struct {
 	authService services.AuthServiceI
 }
 
-func NewAuthController(db *gorm.DB, bundle *i18n.Bundle) IAuthController {
-	ctrl := controllers.NewController(bundle)
+func NewAuthController(db *gorm.DB, bundle *i18n.Bundle, cache cache.Cache) IAuthController {
+	ctrl := controllers.NewController(bundle, cache)
 	return &AuthController{
 		Controllers: ctrl,
 		authService: services.NewAuthServiceLogs(services.NewAuthService(db)),

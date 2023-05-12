@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fmt"
+	"github.com/abolfazlalz/goasali/pkg/cache"
 	"github.com/abolfazlalz/goasali/pkg/config"
 	"github.com/abolfazlalz/goasali/pkg/http/validations"
 	"github.com/gin-gonic/gin"
@@ -27,16 +28,18 @@ type RouteModuleParams struct {
 	Router *gin.RouterGroup
 	DB     *gorm.DB
 	*i18n.Bundle
+	Cache cache.Cache
 }
 
 type Route struct {
 	*gin.Engine
-	DB *gorm.DB
 	*i18n.Bundle
+	DB        *gorm.DB
 	appConfig *config.App
+	cache     cache.Cache
 }
 
-func SetupRouter(db *gorm.DB, bundle *i18n.Bundle) *Route {
+func SetupRouter(db *gorm.DB, bundle *i18n.Bundle, cache cache.Cache) *Route {
 	appConfig, err := config.LoadApp()
 	if err != nil {
 		log.Fatalf("Error during load app environments: %v", err)
@@ -46,7 +49,7 @@ func SetupRouter(db *gorm.DB, bundle *i18n.Bundle) *Route {
 	}
 	router := gin.Default()
 
-	r := &Route{router, db, bundle, appConfig}
+	r := &Route{router, bundle, db, appConfig, cache}
 	r.loadValidations()
 
 	return r
@@ -61,7 +64,7 @@ func (r *Route) loadValidations() {
 func (r *Route) AddRoutes(routes ...Interface) {
 	for _, route := range routes {
 		grp := r.Group("")
-		route.Listen(&RouteModuleParams{grp, r.DB, r.Bundle})
+		route.Listen(&RouteModuleParams{grp, r.DB, r.Bundle, r.cache})
 	}
 }
 
