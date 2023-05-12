@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-	"fmt"
 	"github.com/abolfazlalz/goasali/internal/users/db/models"
 	"github.com/abolfazlalz/goasali/pkg/repositories"
 
@@ -30,13 +29,13 @@ func (ur *UserRepository) Create(user *models.User) (tx *gorm.DB) {
 
 		if found {
 			return &gorm.DB{
-				Error: fmt.Errorf("a user already exists with this username"),
+				Error: UserAlreadyExistsError,
 			}
 		}
 	}
 	if err := user.HashPassword(); err != nil {
 		return &gorm.DB{
-			Error: fmt.Errorf("error during hash password error: %v", err),
+			Error: HashPasswordError{err},
 		}
 	}
 	return ur.Db.Create(user)

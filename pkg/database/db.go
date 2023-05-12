@@ -68,5 +68,5 @@ func (c *Config) loadDatabase() (*gorm.DB, error) {
 		return c.sqlite()
 	}
 
-	return nil, fmt.Errorf("unknown data type, db-type: %s", c.Type)
+	return nil, UnknownDbTypeError{c.Type}
 }
