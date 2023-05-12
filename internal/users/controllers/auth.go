@@ -30,7 +30,7 @@ func NewAuthController(db *gorm.DB, bundle *i18n.Bundle, cache cache.Cache) IAut
 	ctrl := controllers.NewController(bundle, cache)
 	return &AuthController{
 		Controllers: ctrl,
-		authService: services.NewAuthServiceLogs(services.NewAuthService(db)),
+		authService: services.NewAuthServiceLogs(services.NewAuthService(db, cache)),
 		HttpError:   errors.NewUserError(ctrl.HttpError),
 	}
 }

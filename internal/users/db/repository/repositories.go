@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"github.com/abolfazlalz/goasali/internal/users/db/models"
+	"github.com/abolfazlalz/goasali/pkg/cache"
 	"github.com/abolfazlalz/goasali/pkg/repositories"
 
 	"gorm.io/gorm"
@@ -13,13 +14,12 @@ var (
 )
 
 type UserRepository struct {
-	repositories.Interface[models.User]
-	repositories.Repository
+	repositories.Repository[models.User]
 }
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
+func NewUserRepository(db *gorm.DB, cache cache.Cache) *UserRepository {
 	return &UserRepository{
-		Repository: *repositories.NewRepositoryInstance(db),
+		Repository: *repositories.NewRepositoryInstance[models.User](db, cache),
 	}
 }
 

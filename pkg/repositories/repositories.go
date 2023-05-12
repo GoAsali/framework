@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"github.com/abolfazlalz/goasali/pkg/cache"
 	"gorm.io/gorm"
 )
 
@@ -10,12 +11,15 @@ type Interface[T any] interface {
 	Get(id uint) *T
 }
 
-type Repository struct {
-	Db *gorm.DB
+type Repository[T any] struct {
+	Interface[T]
+	Cache cache.Cache
+	Db    *gorm.DB
 }
 
-func NewRepositoryInstance(db *gorm.DB) *Repository {
-	return &Repository{
-		Db: db,
+func NewRepositoryInstance[T any](db *gorm.DB, cache cache.Cache) *Repository[T] {
+	return &Repository[T]{
+		Db:    db,
+		Cache: cache,
 	}
 }

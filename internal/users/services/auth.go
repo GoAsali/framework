@@ -5,6 +5,7 @@ import (
 	"github.com/abolfazlalz/goasali/internal/users/db/models"
 	"github.com/abolfazlalz/goasali/internal/users/db/repository"
 	"github.com/abolfazlalz/goasali/internal/users/utils/tokens"
+	"github.com/abolfazlalz/goasali/pkg/cache"
 	"gorm.io/gorm"
 )
 
@@ -25,10 +26,10 @@ type AuthService struct {
 	token *tokens.Token
 }
 
-func NewAuthService(db *gorm.DB) *AuthService {
+func NewAuthService(db *gorm.DB, cache cache.Cache) *AuthService {
 	return &AuthService{
 		db:    db,
-		repo:  repository.NewUserRepository(db),
+		repo:  repository.NewUserRepository(db, cache),
 		token: tokens.New(),
 	}
 }
