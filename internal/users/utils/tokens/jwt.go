@@ -3,9 +3,11 @@ package tokens
 import (
 	"errors"
 	"github.com/abolfazlalz/goasali/internal/users/db/models"
+	errors2 "github.com/abolfazlalz/goasali/pkg/errors"
 	"github.com/golang-jwt/jwt/v5"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -52,7 +54,7 @@ func (j *Token) GenerateJwtToken(user *models.User) (string, error) {
 	return tokenString, err
 }
 
-func (j *Token) ValidateJwtToken(token string) (*jwt.Claims, error) {
+func (j *Token) ValidateJwtToken(token string) (*Claims, error) {
 	claims := &Claims{}
 
 	// Parse the Token string and store the result in `claims`.
@@ -63,10 +65,16 @@ func (j *Token) ValidateJwtToken(token string) (*jwt.Claims, error) {
 		return j.jwtKey, nil
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "expired") {
+		}
 		return nil, err
 	}
 	if !tkn.Valid {
 		return nil, JwtNotValid
 	}
-	return &tkn.Claims, nil
+	result, ok := tkn.Claims.(Claims)
+	if !ok {
+		return nil, errors2.NewI18nError("invalid_bearer_token")
+	}
+	return &result, nil
 }

@@ -1,11 +1,9 @@
 package controllers
 
-//TODO add jwt token for authorization
-
 import (
 	"github.com/abolfazlalz/goasali/internal/users/db/models"
-	"github.com/abolfazlalz/goasali/internal/users/errors"
 	"github.com/abolfazlalz/goasali/internal/users/services"
+	"github.com/abolfazlalz/goasali/internal/users/types"
 	"github.com/abolfazlalz/goasali/pkg/cache"
 	"github.com/abolfazlalz/goasali/pkg/http/controllers"
 	"github.com/gin-gonic/gin"
@@ -17,12 +15,13 @@ import (
 type IAuthController interface {
 	Login(c *gin.Context)
 	CreateAccount(c *gin.Context)
+	Info(c *gin.Context)
 }
 
 type AuthController struct {
 	IAuthController
 	*controllers.Controllers
-	HttpError   *errors.UserHttpError
+	HttpError   *types.UserHttpError
 	authService services.AuthServiceI
 }
 
@@ -31,7 +30,7 @@ func NewAuthController(db *gorm.DB, bundle *i18n.Bundle, cache cache.Cache) IAut
 	return &AuthController{
 		Controllers: ctrl,
 		authService: services.NewAuthServiceLogs(services.NewAuthService(db, cache)),
-		HttpError:   errors.NewUserError(ctrl.HttpError),
+		HttpError:   types.NewUserError(ctrl.HttpError),
 	}
 }
 
@@ -93,4 +92,8 @@ func (ac *AuthController) CreateAccount(c *gin.Context) {
 		"token":  token,
 		"status": true,
 	})
+}
+
+func (ac *AuthController) Info(c *gin.Context) {
+
 }

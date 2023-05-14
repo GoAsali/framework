@@ -51,8 +51,10 @@ func (he *HttpError) HandleGinError(err error, c *gin.Context) {
 		return
 	}
 
-	c.JSON(code, gin.H{
-		"message": message,
-		"status":  false,
-	})
+	if verr, ok := err.(I18nMessageError); ok {
+		he.HandleHttp(c, he.I18nErrorMessageConfig(c, verr.I18nId))
+		return
+	}
+
+	he.HandleHttp(c, he.ErrorMessage(message), he.HttpCode(code))
 }

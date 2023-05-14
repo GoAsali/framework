@@ -57,6 +57,9 @@ func (ur *UserRepository) CreateMap(model map[string]string) *gorm.DB {
 
 func (ur *UserRepository) FindByUsername(username string, user *models.User) error {
 	result := ur.Db.Where(&models.User{Username: username}).First(&user)
+	if result.Error == gorm.ErrRecordNotFound {
+		return nil
+	}
 	return result.Error
 }
 

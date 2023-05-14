@@ -62,6 +62,11 @@ func (r *Route) loadValidations() {
 }
 
 func (r *Route) AddRoutes(routes ...Interface) {
+	r.Use(func(c *gin.Context) {
+		c.Set("db", r.DB)
+		c.Set("cache", r.cache)
+		c.Set("bundle", r.Bundle)
+	})
 	for _, route := range routes {
 		grp := r.Group("")
 		route.Listen(&RouteModuleParams{grp, r.DB, r.Bundle, r.cache})
@@ -70,5 +75,15 @@ func (r *Route) AddRoutes(routes ...Interface) {
 
 func (r *Route) Listen() error {
 	addr := fmt.Sprintf("%s:%s", r.appConfig.Host, r.appConfig.Port)
-	return r.Run(addr)
+	if err := r.Run(addr); err != nil {
+		return err
+	}
+
+	r.Use(func(c *gin.Context) {
+		c.Set("db", r.DB)
+		c.Set("cache", r.cache)
+		c.Set("bundle", r.Bundle)
+	})
+
+	return nil
 }

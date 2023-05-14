@@ -2,6 +2,7 @@ package routers
 
 import (
 	"github.com/abolfazlalz/goasali/internal/users/controllers"
+	"github.com/abolfazlalz/goasali/internal/users/middlewares"
 	routes "github.com/abolfazlalz/goasali/pkg/http/routers"
 )
 
@@ -19,4 +20,5 @@ func (UserRouter) Listen(route *routes.RouteModuleParams) {
 	grp := route.Router.Group("/auth")
 	grp.POST("/register", ctrl.CreateAccount)
 	grp.POST("/login", ctrl.Login)
+	grp.Use(middlewares.IsAuthMiddleware).GET("/", ctrl.Info)
 }

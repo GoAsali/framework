@@ -1,7 +1,7 @@
 ### Create account request
 POST http://localhost:9000/auth/register
 Content-Type: application/json
-Accept-Language: en
+Accept-Language: fa
 
 {
   "confirm_password": "helloworld",
@@ -20,3 +20,9 @@ Accept-Language: fa
   "username": "abolfazlalz",
   "password": "helloworld"
 }
+
+### User info request
+GET http://localhost:9000/auth
+Content-Type: application/json
+Accept-Language: fa
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFib2xmYXpsYWx6IiwiZXhwIjoxNjg0MDU5OTE5fQ.z6FExhYs3ABLYh08lyWjxBm1wk0_9CP6Vdydsgdq9H8
