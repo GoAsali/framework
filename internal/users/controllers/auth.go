@@ -10,6 +10,7 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"gorm.io/gorm"
 	"log"
+	"net/http"
 )
 
 type IAuthController interface {
@@ -95,5 +96,10 @@ func (ac *AuthController) CreateAccount(c *gin.Context) {
 }
 
 func (ac *AuthController) Info(c *gin.Context) {
-
+	user, err := c.Get("user")
+	if !err {
+		ac.HttpError.HandleHttp(c, ac.HttpError.I18nErrorMessageConfig(c, "authorization.status_forbidden"), ac.HttpError.HttpCode(http.StatusForbidden))
+		return
+	}
+	c.JSON(http.StatusOK, user)
 }

@@ -1,4 +1,3 @@
 {
-  "internal_server": "An internal error has occurred, please try again later.",
-  "invalid_bearer_token": "the token format entered is invalid"
+  "internal_server": "An internal error has occurred, please try again later."
 }

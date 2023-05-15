@@ -38,7 +38,7 @@ func (as *AuthService) Login(user *models.User, username string, password string
 	if err := as.repo.FindByUsername(username, user); err != nil {
 		return "", err
 	}
-	if user != nil || !user.CheckPasswordHash(password) {
+	if user == nil || !user.CheckPasswordHash(password) {
 		return "", UserUnauthorizedError
 	}
 
@@ -50,6 +50,10 @@ func (as *AuthService) Login(user *models.User, username string, password string
 }
 
 func (as *AuthService) CreateAccount(user *models.User) (string, error) {
+	err := user.HashPassword()
+	if err != nil {
+		return "", err
+	}
 	tx := as.db.Create(user)
 
 	if tx.Error != nil {

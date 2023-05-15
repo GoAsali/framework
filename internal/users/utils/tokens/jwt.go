@@ -66,15 +66,16 @@ func (j *Token) ValidateJwtToken(token string) (*Claims, error) {
 	})
 	if err != nil {
 		if strings.Contains(err.Error(), "expired") {
+			return nil, NewExpireTokenError()
 		}
 		return nil, err
 	}
 	if !tkn.Valid {
 		return nil, JwtNotValid
 	}
-	result, ok := tkn.Claims.(Claims)
+	result, ok := tkn.Claims.(*Claims)
 	if !ok {
 		return nil, errors2.NewI18nError("invalid_bearer_token")
 	}
-	return &result, nil
+	return result, nil
 }

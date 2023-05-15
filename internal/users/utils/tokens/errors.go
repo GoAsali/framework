@@ -5,7 +5,7 @@ type ExpireTokenError struct {
 }
 
 func NewExpireTokenError() *ExpireTokenError {
-	return &ExpireTokenError{I18nId: "invalid_bearer_token"}
+	return &ExpireTokenError{I18nId: "authorization.invalid_bearer_token"}
 }
 
 func (ExpireTokenError) Error() string {
