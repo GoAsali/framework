@@ -8,7 +8,7 @@ Accept-Language: fa
   "password": "helloworld",
   "last_name": "Alizadeh",
   "first_name": "Abolfazl",
-  "username": "abolfazlalz"
+  "username": "abolfazlalz1"
 }
 
 ### Login request
@@ -17,7 +17,7 @@ Content-Type: application/json
 Accept-Language: fa
 
 {
-  "username": "abolfazlalz",
+  "username": "abolfazlalz1",
   "password": "helloworld"
 }
 
@@ -26,3 +26,12 @@ GET http://localhost:9000/auth
 Content-Type: application/json
 Accept-Language: fa
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFib2xmYXpsYWx6IiwiZXhwIjoxNjg0MTU0MTc0fQ.z4f8mWwZQ90_EsR28TXLFSix6dHh5lFe7QCiurPIyAE
+
+### Refresh token
+POST http://localhost:9000/auth/refresh
+Content-Type: application/json
+Accept-Language: fa
+
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFib2xmYXpsYWx6MSIsImV4cCI6MTY4NzA3NzI3MX0.ojQn8JhSNmpq4htOf9Bbc2Rg_ObxFldsvQYdKrj8OpE"
+}

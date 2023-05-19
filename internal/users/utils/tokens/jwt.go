@@ -3,6 +3,7 @@ package tokens
 import (
 	"errors"
 	"github.com/abolfazlalz/goasali/internal/users/db/models"
+	"github.com/abolfazlalz/goasali/pkg/config"
 	errors2 "github.com/abolfazlalz/goasali/pkg/errors"
 	"github.com/golang-jwt/jwt/v5"
 	"log"
@@ -16,7 +17,8 @@ var (
 )
 
 type Token struct {
-	jwtKey []byte
+	jwtKey      []byte
+	tokenConfig *config.TokenConfig
 }
 
 type Claims struct {
@@ -25,14 +27,15 @@ type Claims struct {
 }
 
 func New() *Token {
+	tokenConfig, err := config.LoadTokenConfig()
+	if err != nil {
+		log.Fatalf("Error during load token config: %v", err)
+	}
 	key := []byte(os.Getenv("APP_KEY"))
-	return &Token{key}
+	return &Token{key, tokenConfig}
 }
 
-func (j *Token) GenerateJwtToken(user *models.User) (string, error) {
-	// Declare the expiration time of the token
-	// here, we have kept it as 5 minutes
-	expirationTime := time.Now().Add(5 * time.Minute)
+func (j *Token) generateJwtToken(user *models.User, expirationTime time.Time) (string, error) {
 	// Create the Token claims, which includes the username and expiry time
 	claims := &Claims{
 		Username: user.Username,
@@ -52,6 +55,19 @@ func (j *Token) GenerateJwtToken(user *models.User) (string, error) {
 	}
 
 	return tokenString, err
+}
+
+func (j *Token) GenerateAccessToken(user *models.User) (string, error) {
+
+	// Declare the expiration time of the token
+	expirationTime := time.Now().Add(j.tokenConfig.AccessLifeTime)
+	return j.generateJwtToken(user, expirationTime)
+}
+
+func (j *Token) GenerateRefreshToken(user *models.User) (string, error) {
+	// Declare the expiration time of the token
+	expirationTime := time.Now().Add(j.tokenConfig.RefreshLifeTime)
+	return j.generateJwtToken(user, expirationTime)
 }
 
 func (j *Token) ValidateJwtToken(token string) (*Claims, error) {

@@ -12,3 +12,7 @@ type RegisterUser struct {
 	FirstName       string `binding:"required" json:"first_name"`
 	LastName        string `binding:"required" json:"last_name"`
 }
+
+type RefreshTokenRequest struct {
+	Token string `binding:"required" json:"refresh_token"`
+}
