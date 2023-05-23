@@ -27,6 +27,7 @@ func (UserRouter) authCtrl(route *routes.RouteModuleParams) {
 	grp := route.Router.Group("/auth")
 	grp.POST("/register", ctrl.CreateAccount)
 	grp.POST("/login", ctrl.Login)
+	grp.POST("/refresh", ctrl.RefreshToken)
 	grp.Use(middlewares.IsAuthMiddleware).GET("/", ctrl.Info)
 }
 

@@ -14,7 +14,7 @@ func NewAuthServiceLogs(i AuthServiceI) AuthServiceI {
 	return &AuthServiceLogs{i}
 }
 
-func (asl *AuthServiceLogs) Login(user *models.User, username string, password string) (string, error) {
+func (asl *AuthServiceLogs) Login(user *models.User, username string, password string) (*Token, error) {
 	prefix := log.Prefix()
 	log.SetPrefix("[AuthServiceLogs][Login] ")
 
@@ -22,7 +22,7 @@ func (asl *AuthServiceLogs) Login(user *models.User, username string, password s
 
 	re, err := asl.AuthServiceI.Login(user, username, password)
 
-	defer func(token string, err error, start time.Time) {
+	defer func(token *Token, err error, start time.Time) {
 		if err != nil {
 			log.Printf("Method completed with error in %v: %v", time.Since(start), err)
 		} else {
@@ -34,7 +34,7 @@ func (asl *AuthServiceLogs) Login(user *models.User, username string, password s
 	return re, err
 }
 
-func (asl *AuthServiceLogs) CreateAccount(user *models.User) (string, error) {
+func (asl *AuthServiceLogs) CreateAccount(user *models.User) (*Token, error) {
 	prefix := log.Prefix()
 	log.SetPrefix("[AuthServiceLogs][CreateAccount] ")
 
@@ -42,7 +42,7 @@ func (asl *AuthServiceLogs) CreateAccount(user *models.User) (string, error) {
 
 	re, err := asl.AuthServiceI.CreateAccount(user)
 
-	defer func(token string, err error, start time.Time) {
+	defer func(token *Token, err error, start time.Time) {
 		if err != nil {
 			log.Printf("Method completed with error in %v: %v", time.Since(start), err)
 		} else {

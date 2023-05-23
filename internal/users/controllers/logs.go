@@ -40,3 +40,15 @@ func (logAuth *AuthLogsControllers) Login(c *gin.Context) {
 
 	logAuth.IAuthController.Login(c)
 }
+
+func (logAuth *AuthLogsControllers) RefreshToken(c *gin.Context) {
+	lastPrefix := log.Prefix()
+	log.SetPrefix("[AuthLogsControllers][RefreshToken] ")
+
+	defer func(prefix string) {
+		log.Println("Refresh token completed")
+		log.SetPrefix(prefix)
+	}(lastPrefix)
+
+	logAuth.IAuthController.RefreshToken(c)
+}

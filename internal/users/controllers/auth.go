@@ -17,6 +17,7 @@ type IAuthController interface {
 	Login(c *gin.Context)
 	CreateAccount(c *gin.Context)
 	Info(c *gin.Context)
+	RefreshToken(c *gin.Context)
 }
 
 type AuthController struct {
@@ -54,9 +55,10 @@ func (ac *AuthController) Login(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"user":   user,
-		"token":  token,
-		"status": true,
+		"user":          user,
+		"access_token":  token.AccessToken,
+		"refresh_token": token.RefreshToken,
+		"status":        true,
 	})
 }
 
@@ -89,9 +91,29 @@ func (ac *AuthController) CreateAccount(c *gin.Context) {
 	}
 
 	c.JSON(201, gin.H{
-		"user":   user,
-		"token":  token,
-		"status": true,
+		"user":          user,
+		"access_token":  token.AccessToken,
+		"refresh_token": token.RefreshToken,
+		"status":        true,
+	})
+}
+
+func (ac *AuthController) RefreshToken(c *gin.Context) {
+	body := RefreshTokenRequest{}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		ac.HttpError.HandleGinError(err, c)
+		return
+	}
+
+	token, err := ac.authService.RefreshToken(body.Token)
+	if err != nil {
+		ac.HandleGinError(err, c)
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"access_token": token,
+		"status":       true,
 	})
 }
 
