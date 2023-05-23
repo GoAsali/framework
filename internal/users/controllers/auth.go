@@ -26,8 +26,8 @@ type AuthController struct {
 	authService services.AuthServiceI
 }
 
-func NewAuthController(db *gorm.DB, bundle *i18n.Bundle, cache cache.Cache) IAuthController {
-	ctrl := controllers.NewController(bundle, cache)
+func NewAuth(db *gorm.DB, bundle *i18n.Bundle, cache cache.Cache) IAuthController {
+	ctrl := controllers.New(bundle, cache)
 	return &AuthController{
 		Controllers: ctrl,
 		authService: services.NewAuthServiceLogs(services.NewAuthService(db, cache)),

@@ -14,11 +14,23 @@ func NewUserRoute() *UserRouter {
 	return &UserRouter{routes.NewRouteModule("users")}
 }
 
-func (UserRouter) Listen(route *routes.RouteModuleParams) {
-	ctrl := controllers.NewAuthController(route.DB, route.Bundle, route.Cache)
+func (UserRouter) adminCtrl(route *routes.RouteModuleParams) {
+	ctrl := controllers.NewAdmin(route.DB, route.Bundle, route.Cache)
+	grp := route.Router.Group("/admin")
+	grp.GET("/users", ctrl.List)
+}
+
+func (UserRouter) authCtrl(route *routes.RouteModuleParams) {
+	ctrl := controllers.NewAuth(route.DB, route.Bundle, route.Cache)
 	ctrl = controllers.NewAuthLogs(ctrl)
+
 	grp := route.Router.Group("/auth")
 	grp.POST("/register", ctrl.CreateAccount)
 	grp.POST("/login", ctrl.Login)
 	grp.Use(middlewares.IsAuthMiddleware).GET("/", ctrl.Info)
+}
+
+func (ur UserRouter) Listen(route *routes.RouteModuleParams) {
+	ur.authCtrl(route)
+	ur.adminCtrl(route)
 }

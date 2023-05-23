@@ -9,6 +9,10 @@ type Interface[T any] interface {
 	Create(model *T) (tx *gorm.DB)
 	CreateMap(model map[string]string) (tx *gorm.DB)
 	Get(id uint) *T
+	Update(id uint, model map[string]string) (tx *gorm.DB)
+	Delete(id ...uint) (tx *gorm.DB)
+	// List get list of dedicated models with a condition
+	List(models *[]T, condition ...T) (tx *gorm.DB)
 }
 
 type Repository[T any] struct {
@@ -22,4 +26,22 @@ func NewRepositoryInstance[T any](db *gorm.DB, cache cache.Cache) *Repository[T]
 		Db:    db,
 		Cache: cache,
 	}
+}
+
+func (r Repository[T]) List(models *[]T, queryExecute ...ListQueryExecuteFn) (tx *gorm.DB) {
+	query := defaultListQuery()
+	for _, fn := range queryExecute {
+		fn(query)
+	}
+
+	tx = r.Db.Limit(query.limit)
+	tx = tx.Offset(query.offset)
+
+	for _, condition := range query.conditions {
+		tx = tx.Where(condition)
+	}
+
+	tx.Find(models)
+
+	return
 }

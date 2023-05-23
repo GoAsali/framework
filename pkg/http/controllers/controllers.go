@@ -13,7 +13,7 @@ type Controllers struct {
 	Cache cache.Cache
 }
 
-func NewController(bundle *i18n.Bundle, cache cache.Cache) *Controllers {
+func New(bundle *i18n.Bundle, cache cache.Cache) *Controllers {
 	return &Controllers{
 		Bundle:    bundle,
 		HttpError: &errors.HttpError{Bundle: bundle},
