@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/abolfazlalz/goasali/pkg/cache"
 	"github.com/abolfazlalz/goasali/pkg/config"
+	"github.com/abolfazlalz/goasali/pkg/http/controllers"
 	"github.com/abolfazlalz/goasali/pkg/http/validations"
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -28,7 +29,8 @@ type RouteModuleParams struct {
 	Router *gin.RouterGroup
 	DB     *gorm.DB
 	*i18n.Bundle
-	Cache cache.Cache
+	Cache      cache.Cache
+	Controller *controllers.Controllers
 }
 
 type Route struct {
@@ -69,7 +71,8 @@ func (r *Route) AddRoutes(routes ...Interface) {
 	})
 	for _, route := range routes {
 		grp := r.Group("")
-		route.Listen(&RouteModuleParams{grp, r.DB, r.Bundle, r.cache})
+		ctrl := controllers.NewController(r.Bundle, r.cache, r.DB)
+		route.Listen(&RouteModuleParams{grp, r.DB, r.Bundle, r.cache, ctrl})
 	}
 }
 

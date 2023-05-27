@@ -1,0 +1,5 @@
+{
+  "unauthorized": "Email or password is incorrect.",
+  "invalid_bearer_token": "the token format entered is invalid",
+  "status_forbidden": "You do not have access to this section"
+}

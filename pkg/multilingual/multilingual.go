@@ -9,10 +9,19 @@ import (
 
 type Multilingual struct {
 	*i18n.Bundle
-	Path string
+	Path    string
+	Modules []string
 }
 
-// Load Load all messages from languages folder
+func New() *Multilingual {
+	return &Multilingual{
+		Bundle:  i18n.NewBundle(language.English),
+		Path:    "languages",
+		Modules: make([]string, 0),
+	}
+}
+
+// Load Load all messages.json from languages folder
 func (m *Multilingual) Load() error {
 	lastPrefix := log.Prefix()
 	log.SetPrefix("[Language loading] - ")
@@ -46,7 +55,11 @@ func (m *Multilingual) Load() error {
 	return nil
 }
 
-// ChangeLanguageDirectory Change language directory and reload messages files
+func (m *Multilingual) AddModule(path string) {
+	m.Modules = append(m.Modules, path)
+}
+
+// ChangeLanguageDirectory Change language directory and reload messages.json files
 func (m *Multilingual) ChangeLanguageDirectory(dirPath string) error {
 	m.Path = dirPath
 	return m.Load()

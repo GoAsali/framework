@@ -16,3 +16,8 @@ type RegisterUser struct {
 type RefreshTokenRequest struct {
 	Token string `binding:"required" json:"refresh_token"`
 }
+
+type CreateRole struct {
+	Name          string `binding:"required"`
+	PermissionsId []uint `binding:"required" json:"permissions_id"`
+}

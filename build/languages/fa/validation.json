@@ -1,0 +1,12 @@
+{
+  "error": "اطلاعات وارد شده نامعتبر می باشد.",
+  "required": "{{.Field}} باید وارد شود.",
+  "unique": "{{.Field}} قبلا استفاده شده است.",
+  "fields": {
+    "Username": "نام کاربری",
+    "ConfirmPassword": "تکرار رمزعبور",
+    "Password": "رمزعبور",
+    "LastName": "نام خانوادگی",
+    "FirstName": "نام"
+  }
+}

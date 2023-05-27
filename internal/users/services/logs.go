@@ -10,8 +10,16 @@ type AuthServiceLogs struct {
 	AuthServiceI
 }
 
+type RoleServiceLogs struct {
+	RoleServiceI
+}
+
 func NewAuthServiceLogs(i AuthServiceI) AuthServiceI {
 	return &AuthServiceLogs{i}
+}
+
+func NewRoleServiceLogs(i RoleServiceI) RoleServiceI {
+	return &RoleServiceLogs{i}
 }
 
 func (asl *AuthServiceLogs) Login(user *models.User, username string, password string) (*Token, error) {
@@ -53,3 +61,5 @@ func (asl *AuthServiceLogs) CreateAccount(user *models.User) (*Token, error) {
 
 	return re, err
 }
+
+func (rs RoleServiceLogs) AddRole(userId uint) {}

@@ -9,18 +9,14 @@ import (
 	"github.com/abolfazlalz/goasali/pkg/database"
 	routes "github.com/abolfazlalz/goasali/pkg/http/routers"
 	"github.com/abolfazlalz/goasali/pkg/multilingual"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"golang.org/x/text/language"
 	"log"
 )
 
 func main() {
 	ctx := context.Background()
 
-	m := &multilingual.Multilingual{
-		Bundle: i18n.NewBundle(language.English),
-		Path:   "languages",
-	}
+	m := multilingual.New()
+
 	if err := m.Load(); err != nil {
 		log.Fatalf("Error in loading languages files: %v", err)
 	}

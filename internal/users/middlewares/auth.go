@@ -6,7 +6,7 @@ import (
 	"github.com/abolfazlalz/goasali/internal/users/db/repository"
 	"github.com/abolfazlalz/goasali/internal/users/utils/tokens"
 	"github.com/abolfazlalz/goasali/pkg/errors"
-	routes "github.com/abolfazlalz/goasali/pkg/http/routers"
+	"github.com/abolfazlalz/goasali/pkg/http/routers"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"

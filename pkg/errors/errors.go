@@ -1,7 +1,6 @@
 package errors
 
 import (
-	routes "github.com/abolfazlalz/goasali/pkg/http/routers"
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
@@ -25,10 +24,14 @@ type HttpError struct {
 }
 
 func NewByContext(c *gin.Context) *HttpError {
-	context := routes.NewContext(c)
-	return &HttpError{
-		Bundle: context.Bundle,
+	bundle, exists := c.Get("bundle")
+	if exists {
+		return &HttpError{
+			Bundle: bundle.(*i18n.Bundle),
+		}
 	}
+
+	return nil
 }
 
 func (he *HttpError) getLocalizer(c *gin.Context) *i18n.Localizer {
