@@ -4,16 +4,23 @@ import (
 	"context"
 	"github.com/abolfazlalz/goasali/pkg/config"
 	"log"
+	"time"
 )
 
 type SupportValues interface {
 	string | int
 }
 
+type Item struct {
+	Key   string
+	Value interface{}
+	TTL   time.Duration
+}
+
 type Cache interface {
-	Get(key string) (interface{}, error)
-	Set(key string, value interface{}, ttl uint) error
-	Remember(key string, ttl uint, f func() interface{}) (interface{}, error)
+	Get(key string, value interface{}) error
+	Set(item Item) error
+	Remember(key string, ttl time.Duration, f func() interface{}) (interface{}, error)
 	Forget(key ...string) error
 }
 
@@ -31,8 +38,20 @@ func New(ctx context.Context) (Cache, error) {
 	}
 	if configCache.Type == "redis" {
 		log.Print("Starting redis as cache")
-		return NewRedis(ctx), nil
+		return NewRedis(WithContext(ctx)), nil
 	}
 
 	return nil, InvalidTypeError{Type: configCache.Type}
+}
+
+func (item *Item) ttl() time.Duration {
+	ttl := time.Hour
+	if item.TTL == 0 {
+		return ttl
+	}
+	if item.TTL < time.Second {
+		log.Printf("Too short ttl for key: %q: %s", item.Key, item.TTL)
+		return ttl
+	}
+	return ttl
 }
