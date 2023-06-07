@@ -52,7 +52,7 @@ func (he *HttpError) HandleGinError(err error, c *gin.Context) {
 	}
 
 	if verr, ok := err.(I18nMessageError); ok {
-		he.HandleHttp(c, he.I18nErrorMessageConfig(c, verr.I18nId))
+		he.HandleHttp(c, he.I18nErrorMessageConfig(verr.I18nId))
 		return
 	}
 

@@ -13,6 +13,46 @@ import (
 	"strings"
 )
 
+func IsAuthMiddlewareCache(c *gin.Context) {
+	context := routes.NewContext(c)
+	hErr := errors.NewByContext(c)
+
+	cacheMng := context.Cache
+
+	bearToken := c.GetHeader("Authorization")
+
+	token := strings.Split(bearToken, " ")[1]
+	key := fmt.Sprintf("jwt_key_%s", bearToken)
+
+	remember, err := cacheMng.Remember(key, 60, func() interface{} {
+		fmt.Println("Using cache")
+		userJwt := tokens.NewUserJwt(token, context.DB, cacheMng)
+		user := models.User{}
+		err := userJwt.User(&user)
+		if err != nil {
+			log.Println("Error in finding user in jwt token")
+			return nil
+		}
+		return user
+	})
+	fmt.Println("ok checked ?")
+	if err != nil {
+		log.Println(err)
+		hErr.HandleHttp(c, hErr.I18nErrorMessageConfig("errors.internal_server"))
+		return
+	}
+
+	user, exists := remember.(models.User)
+
+	if exists {
+		c.Set("user", &user)
+		c.Next()
+		return
+	}
+
+	hErr.HandleHttp(c, hErr.I18nErrorMessageConfig("authorization.access_denied"))
+}
+
 func IsAuthMiddleware(c *gin.Context) {
 	prefix := log.Prefix()
 
@@ -40,7 +80,7 @@ func IsAuthMiddleware(c *gin.Context) {
 		log.Printf("Error in check middleware auth: %v", err)
 		if verr, ok := err.(errors.I18nMessageError); ok {
 			errors.NewByContext(c).I18nErrorMessage(c, verr.I18nId)
-			httpErr.HandleHttp(c, httpErr.HttpCode(http.StatusUnauthorized), httpErr.I18nErrorMessageConfig(c, verr.I18nId))
+			httpErr.HandleHttp(c, httpErr.HttpCode(http.StatusUnauthorized), httpErr.I18nErrorMessageConfig(verr.I18nId))
 			return
 		}
 
@@ -56,6 +96,5 @@ func IsAuthMiddleware(c *gin.Context) {
 	}
 
 	c.Set("user", &user)
-
 	c.Next()
 }

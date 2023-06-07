@@ -47,10 +47,10 @@ func (ac *AuthController) Login(c *gin.Context) {
 	token, err := ac.authService.Login(user, body.Username, body.Password)
 	if err != nil {
 		if err == services.UserUnauthorizedError {
-			ac.HttpError.HandleHttp(c, ac.HttpCode(400), ac.I18nErrorMessageConfig(c, "authorization.unauthorized"))
+			ac.HttpError.HandleHttp(c, ac.HttpCode(400), ac.I18nErrorMessageConfig("authorization.unauthorized"))
 			return
 		}
-		ac.HttpError.HandleHttp(c, ac.HttpCode(500), ac.I18nErrorMessageConfig(c, "errors.internal_server"))
+		ac.HttpError.HandleHttp(c, ac.HttpCode(500), ac.I18nErrorMessageConfig("errors.internal_server"))
 		return
 	}
 
@@ -71,7 +71,7 @@ func (ac *AuthController) CreateAccount(c *gin.Context) {
 	}
 
 	if body.Password != body.ConfirmPassword {
-		ac.HttpError.HandleHttp(c, ac.I18nErrorMessageConfig(c, "validation.password_same"))
+		ac.HttpError.HandleHttp(c, ac.I18nErrorMessageConfig("validation.password_same"))
 		return
 	}
 
@@ -86,7 +86,7 @@ func (ac *AuthController) CreateAccount(c *gin.Context) {
 
 	if err != nil {
 		log.Printf("Error during create new user: %v", err)
-		ac.HttpError.HandleHttp(c, ac.HttpCode(500), ac.I18nErrorMessageConfig(c, "errors.internal_server"))
+		ac.HttpError.HandleHttp(c, ac.HttpCode(500), ac.I18nErrorMessageConfig("errors.internal_server"))
 		return
 	}
 
@@ -120,7 +120,7 @@ func (ac *AuthController) RefreshToken(c *gin.Context) {
 func (ac *AuthController) Info(c *gin.Context) {
 	user, err := c.Get("user")
 	if !err {
-		ac.HttpError.HandleHttp(c, ac.HttpError.I18nErrorMessageConfig(c, "authorization.status_forbidden"), ac.HttpError.HttpCode(http.StatusForbidden))
+		ac.HttpError.HandleHttp(c, ac.HttpError.I18nErrorMessageConfig("authorization.status_forbidden"), ac.HttpError.HttpCode(http.StatusForbidden))
 		return
 	}
 	c.JSON(http.StatusOK, user)

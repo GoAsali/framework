@@ -13,6 +13,7 @@ type HttpErrorMessage interface {
 }
 
 type httpErrorConfig struct {
+	c        *gin.Context
 	httpCode int
 	message  string
 }
@@ -40,9 +41,10 @@ func (he *HttpError) mustLocalize(c *gin.Context, lc *i18n.LocalizeConfig) strin
 	return he.getLocalizer(c).MustLocalize(lc)
 }
 
-func defaultConfig() *httpErrorConfig {
+func defaultConfig(c *gin.Context) *httpErrorConfig {
 	return &httpErrorConfig{
 		httpCode: 500, message: "Unknown server error",
+		c: c,
 	}
 }
 
@@ -58,9 +60,9 @@ func (he *HttpError) ErrorMessage(message string) OptionFunc {
 	}
 }
 
-func (he *HttpError) I18nErrorMessageConfig(c *gin.Context, id string) OptionFunc {
+func (he *HttpError) I18nErrorMessageConfig(id string) OptionFunc {
 	return func(opt *httpErrorConfig) {
-		opt.message = he.I18nErrorMessage(c, id)
+		opt.message = he.I18nErrorMessage(opt.c, id)
 	}
 }
 
@@ -80,7 +82,7 @@ func (he *HttpError) I18nErrorMessageOrDefault(c *gin.Context, id string, defVal
 }
 
 func (he *HttpError) HandleHttp(c *gin.Context, configs ...OptionFunc) {
-	config := defaultConfig()
+	config := defaultConfig(c)
 
 	for _, cf := range configs {
 		cf(config)
@@ -89,5 +91,5 @@ func (he *HttpError) HandleHttp(c *gin.Context, configs ...OptionFunc) {
 	message := config.message
 
 	response := gin.H{"message": message, "status": false}
-	c.JSON(config.httpCode, response)
+	c.AbortWithStatusJSON(config.httpCode, response)
 }
