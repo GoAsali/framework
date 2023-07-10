@@ -11,13 +11,13 @@ type UserRouter struct {
 }
 
 func NewUserRoute() *UserRouter {
-	return &UserRouter{routes.NewRouteModule("users")}
+	return &UserRouter{routes.NewRouteModule("service")}
 }
 
 func (UserRouter) adminCtrl(route *routes.RouteModuleParams) {
 	ctrl := controllers.NewAdmin(route.DB, route.Bundle, route.Cache)
 	grp := route.Router.Group("/admin")
-	grp.GET("/users", ctrl.List)
+	grp.GET("/service", ctrl.List)
 }
 
 func (UserRouter) authCtrl(route *routes.RouteModuleParams) {
@@ -28,7 +28,7 @@ func (UserRouter) authCtrl(route *routes.RouteModuleParams) {
 	grp.POST("/register", ctrl.CreateAccount)
 	grp.POST("/login", ctrl.Login)
 	grp.POST("/refresh", ctrl.RefreshToken)
-	grp.Use(middlewares.IsAuthMiddleware).GET("/", ctrl.Info)
+	grp.Use(middlewares.IsAuthMiddlewareCache).GET("/", ctrl.Info)
 }
 
 func (ur UserRouter) Listen(route *routes.RouteModuleParams) {

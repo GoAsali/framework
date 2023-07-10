@@ -55,7 +55,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"user":          user,
+		"service":       user,
 		"access_token":  token.AccessToken,
 		"refresh_token": token.RefreshToken,
 		"status":        true,
@@ -85,13 +85,13 @@ func (ac *AuthController) CreateAccount(c *gin.Context) {
 	token, err := ac.authService.CreateAccount(&user)
 
 	if err != nil {
-		log.Printf("Error during create new user: %v", err)
+		log.Printf("Error during create new service: %v", err)
 		ac.HttpError.HandleHttp(c, ac.HttpCode(500), ac.I18nErrorMessageConfig("errors.internal_server"))
 		return
 	}
 
 	c.JSON(201, gin.H{
-		"user":          user,
+		"service":       user,
 		"access_token":  token.AccessToken,
 		"refresh_token": token.RefreshToken,
 		"status":        true,
@@ -118,7 +118,7 @@ func (ac *AuthController) RefreshToken(c *gin.Context) {
 }
 
 func (ac *AuthController) Info(c *gin.Context) {
-	user, err := c.Get("user")
+	user, err := c.Get("service")
 	if !err {
 		ac.HttpError.HandleHttp(c, ac.HttpError.I18nErrorMessageConfig("authorization.status_forbidden"), ac.HttpError.HttpCode(http.StatusForbidden))
 		return

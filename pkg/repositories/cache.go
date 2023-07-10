@@ -67,13 +67,10 @@ func NewCache[T any](repo *Repository[T], fns ...CacheConfigFn) *Cache[T] {
 
 func (c Cache[T]) Get(id uint) *T {
 	key := fmt.Sprintf("%s-get-%d", c.prefix, id)
-	value, _ := c.Cache.Remember(key, 100, func() interface{} {
-		return c.Repository.Get(id)
+	var result T
+	_ = c.Cache.Remember(key, 100, &result, func(x interface{}) {
+		x = c.Repository.Get(id)
 	})
 
-	model, ok := value.(T)
-	if !ok {
-		return nil
-	}
-	return &model
+	return &result
 }

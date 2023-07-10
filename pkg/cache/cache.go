@@ -20,7 +20,7 @@ type Item struct {
 type Cache interface {
 	Get(key string, value interface{}) error
 	Set(item Item) error
-	Remember(key string, ttl time.Duration, f func() interface{}) (interface{}, error)
+	Remember(key string, ttl time.Duration, result interface{}, f func(result interface{})) error
 	Forget(key ...string) error
 }
 

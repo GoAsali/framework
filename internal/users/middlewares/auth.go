@@ -5,12 +5,14 @@ import (
 	"github.com/abolfazlalz/goasali/internal/users/db/models"
 	"github.com/abolfazlalz/goasali/internal/users/db/repository"
 	"github.com/abolfazlalz/goasali/internal/users/utils/tokens"
+	"github.com/abolfazlalz/goasali/pkg/cache"
 	"github.com/abolfazlalz/goasali/pkg/errors"
 	routes "github.com/abolfazlalz/goasali/pkg/http/routers"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func IsAuthMiddlewareCache(c *gin.Context) {
@@ -24,28 +26,22 @@ func IsAuthMiddlewareCache(c *gin.Context) {
 	token := strings.Split(bearToken, " ")[1]
 	key := fmt.Sprintf("jwt_key_%s", bearToken)
 
-	remember, err := cacheMng.Remember(key, 60, func() interface{} {
-		fmt.Println("Using cache")
+	var user *models.User
+	if err := cacheMng.Get(key, user); err != nil {
+		panic(err)
+	}
+	if user == nil {
 		userJwt := tokens.NewUserJwt(token, context.DB, cacheMng)
-		user := models.User{}
-		err := userJwt.User(&user)
-		if err != nil {
-			log.Println("Error in finding user in jwt token")
-			return nil
+		if err := userJwt.User(user); err != nil {
+			panic(err)
 		}
-		return user
-	})
-	fmt.Println("ok checked ?")
-	if err != nil {
-		log.Println(err)
-		hErr.HandleHttp(c, hErr.I18nErrorMessageConfig("errors.internal_server"))
-		return
+		if err := cacheMng.Set(cache.Item{Key: key, Value: user, TTL: 60 * time.Second}); err != nil {
+			panic(err)
+		}
 	}
 
-	user, exists := remember.(models.User)
-
-	if exists {
-		c.Set("user", &user)
+	if user != nil {
+		c.Set("service", &user)
 		c.Next()
 		return
 	}
@@ -95,6 +91,6 @@ func IsAuthMiddleware(c *gin.Context) {
 		return
 	}
 
-	c.Set("user", &user)
+	c.Set("service", &user)
 	c.Next()
 }

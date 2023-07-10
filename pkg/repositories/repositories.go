@@ -7,6 +7,7 @@ import (
 
 type Interface[T any] interface {
 	Create(model *T) (tx *gorm.DB)
+	FirstOrCreate(model *T)
 	CreateMap(model map[string]string) (tx *gorm.DB)
 	Get(id uint) *T
 	Update(id uint, model map[string]string) (tx *gorm.DB)
@@ -44,4 +45,11 @@ func (r Repository[T]) List(models *[]T, queryExecute ...ListQueryExecuteFn) (tx
 	tx.Find(models)
 
 	return
+}
+
+func (r Repository[T]) FirstOrCreate(model *T, conditions ...interface{}) error {
+	if re := r.Db.FirstOrCreate(model, conditions); re.Error != nil {
+		return re.Error
+	}
+	return nil
 }

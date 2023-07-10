@@ -32,7 +32,7 @@ func WithOperator(op Operator) ListQueryExecuteFn {
 }
 
 // WithLimit Set limit for query
-// Ex: select * from users limit 10
+// Ex: select * from service limit 10
 func WithLimit(limit int) ListQueryExecuteFn {
 	return func(option *ListQueryOption) {
 		option.limit = limit
@@ -40,7 +40,7 @@ func WithLimit(limit int) ListQueryExecuteFn {
 }
 
 // WithOffset Set offset sql query
-// Ex: select * from users offset 10
+// Ex: select * from service offset 10
 func WithOffset(offset int) ListQueryExecuteFn {
 	return func(option *ListQueryOption) {
 		option.offset = offset

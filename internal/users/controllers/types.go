@@ -6,7 +6,7 @@ type LoginUser struct {
 }
 
 type RegisterUser struct {
-	Username        string `binding:"required,unique=users"`
+	Username        string `binding:"required,unique=service"`
 	Password        string `binding:"required"`
 	ConfirmPassword string `binding:"required" json:"confirm_password"`
 	FirstName       string `binding:"required" json:"first_name"`

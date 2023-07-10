@@ -81,31 +81,6 @@ func (r Redis) Get(key string, result interface{}) error {
 	return nil
 }
 
-// Remember If a key has value return else, set value from function callback
-func (r Redis) Remember(key string, ttl time.Duration, f func() interface{}) (interface{}, error) {
-	var err error
-	var result interface{}
-
-	err = r.Get(key, &result)
-
-	if err != nil {
-		return "", err
-	}
-
-	// Still this key has value in cache
-	if result != nil {
-		return result, nil
-	}
-
-	result = f()
-
-	if err := r.Set(Item{TTL: ttl, Key: key, Value: result}); err != nil {
-		return "", err
-	}
-
-	return result, nil
-}
-
 func (r Redis) Forget(key ...string) error {
 	return r.client.Del(r.ctx, key...).Err()
 }

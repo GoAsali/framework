@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"github.com/abolfazlalz/goasali/internal/users/db/migrate"
+	"github.com/abolfazlalz/goasali/internal/users/db/models"
 	"github.com/abolfazlalz/goasali/internal/users/routers"
+	"github.com/abolfazlalz/goasali/internal/users/services"
 	"github.com/abolfazlalz/goasali/pkg/cache"
 	"github.com/abolfazlalz/goasali/pkg/config"
 	"github.com/abolfazlalz/goasali/pkg/database"
@@ -29,11 +31,17 @@ func main() {
 		log.Fatalf("Error in loading `.env` file: %v", err)
 	}
 
-	databaseConfig, err := database.LoadDatabase()
-	cache, err := cache.New(ctx)
-	if err != nil {
-		log.Fatalf("Error during loading cache: %v", err)
-		return
+	var err error
+	var databaseConfig *database.Database
+	if databaseConfig, err = database.LoadDatabase(); err != nil {
+		log.Fatalf("Error during loading database: %v", err)
+	}
+	var cacheInstance cache.Cache
+	if cacheInstance, err = cache.New(ctx); err != nil {
+		if err != nil {
+			log.Fatalf("Error during loading cache: %v", err)
+			return
+		}
 	}
 
 	// Migrate modules models
@@ -41,14 +49,18 @@ func main() {
 		log.Fatalf("Database migration failed %v", err)
 	}
 
+	db := databaseConfig.DB
+	//admin := services.NewAdmin(db, cacheInstance)
+	role := services.NewRole(db, cacheInstance)
+	err = role.CreatePermission(&models.Permission{Name: "Read"}, &models.Permission{Name: "Create"})
 	if err != nil {
-		log.Fatalf("Can't loading database: %v", err)
+		log.Printf("Error during create permissions: %v", err)
 	}
 
-	router := routes.SetupRouter(databaseConfig.DB, m.Bundle, cache)
+	router := routes.SetupRouter(databaseConfig.DB, m.Bundle, cacheInstance)
 	router.AddRoutes(routers.NewUserRoute())
 
 	if err := router.Listen(); err != nil {
-		log.Fatalf("Error in listenning gin http server: %v", err)
+		log.Fatalf("Error in listenning gin service server: %v", err)
 	}
 }
